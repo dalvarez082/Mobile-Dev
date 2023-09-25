@@ -1,4 +1,5 @@
 import 'package:api_marvel/Widgets/Item_card_charter.dart';
+import 'package:api_marvel/Widgets/banner_charter.dart';
 import 'package:api_marvel/marvel_character.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -61,16 +62,60 @@ class _PageHomeState extends State<PageHome> {
     return md5.convert(utf8.encode(input)).toString();
   }
 
-  @override
+
+  String removeParentheses(String text) {
+  // Find the first occurrence of "(" and the last occurrence of ")"
+  final startIndex = text.indexOf("(");
+  final endIndex = text.lastIndexOf(")");
+
+  
+  if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+    // Remove the text between parentheses and the parentheses themselves
+    return text.replaceRange(startIndex, endIndex + 1, '').trim();
+  } else {
+    // If no parentheses are found, return the original text
+    return text;
+  }
+}
+
+@override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-        itemCount: characters.length,
-        itemBuilder: (BuildContext context, int index) {
-          final character = characters[index];
-          return ItemCardCharter(title: character.name, image: character.image);
-        },
-     ),
-);
-}
+      backgroundColor: Colors.black,
+      body: CustomScrollView(
+        slivers: <Widget>[
+          const SliverAppBar(
+            expandedHeight: 100.0, // Altura expandida de la AppBar
+            backgroundColor: Colors.black, // Color de fondo de la AppBar
+            flexibleSpace: FlexibleSpaceBar(
+              background: BanerCharter(), // Aquí utilizas el widget BannerCharter
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.only(top: 20.0), // Espacio en blanco en la parte superior
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  final character = characters[index];
+                  return ItemCardCharter(
+                    title: removeParentheses(character.name), 
+                    image: character.image, 
+                    comicsCount: character.comicsCount.toString(),
+                    seriesCount: character.seriesCount.toString(),
+                    storiesCount: character.storiesCount.toString(),
+                    eventsCount: character.eventsCount.toString(),
+                  );
+                },
+                childCount: characters.length,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+
 }
