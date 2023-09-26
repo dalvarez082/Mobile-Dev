@@ -1,60 +1,61 @@
-import 'package:api_marvel/Widgets/Item_card_charter.dart';
+import 'package:api_marvel/Pages/one_charter_page.dart';
 import 'package:api_marvel/Widgets/banner_charter.dart';
-import 'package:api_marvel/marvel_character.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-
-
+import 'package:api_marvel/marvel_character.dart';
+import 'package:api_marvel/Widgets/Item_card_charter.dart';
 
 class PageHome extends StatefulWidget {
-  const PageHome({super.key});
+  const PageHome({Key? key}) : super(key: key);
 
   @override
   State<PageHome> createState() => _PageHomeState();
 }
 
 class _PageHomeState extends State<PageHome> {
-  List<MarvelCharacter> characters = [];
+  late Future<List<MarvelCharacter>> characters;
 
   @override
   void initState() {
     super.initState();
-    fetchMarvelCharacters();
+    characters = fetchMarvelCharacters();
   }
 
-  Future<void> fetchMarvelCharacters() async {
-    const publicKey = 'ad6bdd113a25813549da8c25b33f1997'; // Tu clave pública
-    const privateKey = 'aa1ed69b8b152b4a208a17722aa2184abdfae3c9'; // Tu clave privada
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final hash = generateMd5('$timestamp$privateKey$publicKey');
-    const apiUrl = 'https://gateway.marvel.com/v1/public/characters';
+  Future<List<MarvelCharacter>> fetchMarvelCharacters() async {
+    try {
+      const publicKey = 'ad6bdd113a25813549da8c25b33f1997'; // Tu clave pública
+      const privateKey =
+          'aa1ed69b8b152b4a208a17722aa2184abdfae3c9'; // Tu clave privada
+      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      final hash = generateMd5('$timestamp$privateKey$publicKey');
+      const apiUrl = 'https://gateway.marvel.com/v1/public/characters';
 
-    Map<String, String> queryParams = {
-      'ts': timestamp,
-      'apikey': publicKey,
-      'hash': hash,
-    };
+      Map<String, String> queryParams = {
+        'ts': timestamp,
+        'apikey': publicKey,
+        'hash': hash,
+      };
 
-    String queryString = Uri(queryParameters: queryParams).query;
-   
-    
-    final response = await http.get(Uri.parse('$apiUrl?$queryString'));
+      String queryString = Uri(queryParameters: queryParams).query;
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final charactersData = data['data']['results'];
+      final response = await http.get(Uri.parse('$apiUrl?$queryString'));
 
-      setState(() {
-        characters = charactersData
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final charactersData = data['data']['results'];
+
+        return charactersData
             .map<MarvelCharacter>(
                 (characterData) => MarvelCharacter.fromJson(characterData))
             .toList();
-      });
-    } else {
-      // Manejo de errores, por ejemplo, mostrar un mensaje de error
-      //print('Error al obtener los personajes de Marvel');
+      } else {
+        throw Exception('Error al obtener los personajes de Marvel');
+      }
+    } catch (e) {
+      // Manejar cualquier excepción que ocurra durante la solicitud HTTP.
+      throw Exception('Error en la solicitud HTTP: $e');
     }
   }
 
@@ -62,60 +63,85 @@ class _PageHomeState extends State<PageHome> {
     return md5.convert(utf8.encode(input)).toString();
   }
 
-
   String removeParentheses(String text) {
-  // Find the first occurrence of "(" and the last occurrence of ")"
-  final startIndex = text.indexOf("(");
-  final endIndex = text.lastIndexOf(")");
+    // Find the first occurrence of "(" and the last occurrence of ")"
+    final startIndex = text.indexOf("(");
+    final endIndex = text.lastIndexOf(")");
 
-  
-  if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
-    // Remove the text between parentheses and the parentheses themselves
-    return text.replaceRange(startIndex, endIndex + 1, '').trim();
-  } else {
-    // If no parentheses are found, return the original text
-    return text;
+    if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+      // Remove the text between parentheses and the parentheses themselves
+      return text.replaceRange(startIndex, endIndex + 1, '').trim();
+    } else {
+      // If no parentheses are found, return the original text
+      return text;
+    }
   }
-}
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: CustomScrollView(
         slivers: <Widget>[
           const SliverAppBar(
-            expandedHeight: 100.0, // Altura expandida de la AppBar
-            backgroundColor: Colors.black, // Color de fondo de la AppBar
+            expandedHeight: 100.0,
+            backgroundColor: Colors.black,
             flexibleSpace: FlexibleSpaceBar(
-              background: BanerCharter(), // Aquí utilizas el widget BannerCharter
+              background: BanerCharter(),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.only(top: 20.0), // Espacio en blanco en la parte superior
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  final character = characters[index];
-                  return ItemCardCharter(
-                    title: removeParentheses(character.name), 
-                    image: character.image, 
-                    comicsCount: character.comicsCount.toString(),
-                    seriesCount: character.seriesCount.toString(),
-                    storiesCount: character.storiesCount.toString(),
-                    eventsCount: character.eventsCount.toString(),
-                  );
-                },
-                childCount: characters.length,
-              ),
-            ),
+          FutureBuilder<List<MarvelCharacter>>(
+            future: characters,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SliverToBoxAdapter(
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              } else if (snapshot.hasError) {
+                return SliverToBoxAdapter(
+                  child: Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  ),
+                );
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Center(
+                    child: Text('No se encontraron personajes.'),
+                  ),
+                );
+              } else {
+                final characterList = snapshot.data;
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final character = characterList![index];
+                      return ItemCardCharter(
+                          title: removeParentheses(character.name),
+                          image: character.image,
+                          comicsCount: character.comicsCount.toString(),
+                          seriesCount: character.seriesCount.toString(),
+                          storiesCount: character.storiesCount.toString(),
+                          eventsCount: character.eventsCount.toString(),
+                          character: character,
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      OneCharterPage(character: character),
+                                ));
+                          });
+                    },
+                    childCount: characterList!.length,
+                  ),
+                );
+              }
+            },
           ),
         ],
       ),
     );
   }
-
-
-
-
 }
