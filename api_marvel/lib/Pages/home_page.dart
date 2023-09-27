@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:api_marvel/marvel_character.dart';
-import 'package:api_marvel/Widgets/Item_card_charter.dart';
+import 'package:api_marvel/Widgets/item_card_charter.dart';
 
 class PageHome extends StatefulWidget {
   const PageHome({Key? key}) : super(key: key);
@@ -48,8 +48,7 @@ class _PageHomeState extends State<PageHome> {
 
         return charactersData
             .map<MarvelCharacter>(
-                (characterData) => MarvelCharacter.fromJson(characterData))
-            .toList();
+                (characterData) => MarvelCharacter.fromJson(characterData)).toList();           
       } else {
         throw Exception('Error al obtener los personajes de Marvel');
       }
@@ -116,7 +115,7 @@ class _PageHomeState extends State<PageHome> {
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      final character = characterList![index];
+                      final  character = characterList[index];
                       return ItemCardCharter(
                           title: removeParentheses(character.name),
                           image: character.image,
