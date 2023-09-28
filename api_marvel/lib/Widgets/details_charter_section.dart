@@ -66,8 +66,7 @@ class CharacterDetailsSection extends StatelessWidget {
               itemBuilder: (context, index) {
                 // Aquí puedes personalizar el diseño de cada tarjeta (card)
                 return ItemCardSerieCharter(
-                  title: character.firstThreeSeries[index].name, 
-                  image: character.firstThreeSeries[index].image,);
+                  title: character.firstThreeSeries[index].name,);
                   
                   
               },

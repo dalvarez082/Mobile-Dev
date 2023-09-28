@@ -24,6 +24,7 @@ class MarvelCharacter {
     final List<dynamic> seriesList = json['series']['items'];
 
     List<MarvelSeries> firstThreeSeries = [];
+    
     for (int i = 0; i < 3 && i < seriesList.length; i++) {
       final seriesName = seriesList[i]['name'];
       final seriesImage = seriesList[i]['resourceURI'];

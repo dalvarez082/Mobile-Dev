@@ -39,7 +39,7 @@ class OneCharterPage extends StatelessWidget {
                 SizedBox(height: 8.0), // Espacio entre la imagen y el título
                 Text(
                   character.name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 30.0,
                     color: Color(0xFFF11E22),
                     fontWeight: FontWeight.w900,
