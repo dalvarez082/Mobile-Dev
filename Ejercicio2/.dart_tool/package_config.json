@@ -27,7 +27,7 @@
     },
     {
       "name": "meta",
-      "rootUri": "file:///C:/Users/Diego/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.9.1",
+      "rootUri": "file:///C:/Users/Diego/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.10.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -68,7 +68,7 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2023-08-14T23:22:59.682045Z",
+  "generated": "2023-10-04T23:17:32.837224Z",
   "generator": "pub",
-  "generatorVersion": "3.0.7"
+  "generatorVersion": "3.1.0"
 }

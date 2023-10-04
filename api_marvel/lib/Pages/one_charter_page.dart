@@ -36,7 +36,7 @@ class OneCharterPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: 8.0), // Espacio entre la imagen y el título
+                const SizedBox(height: 8.0), // Espacio entre la imagen y el título
                 Text(
                   character.name,
                   style: const TextStyle(
